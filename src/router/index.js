@@ -14,11 +14,7 @@ const router = createRouter({
       name: 'login',
       component: Login
     },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
-    },
+    
     {
       path: '/signUp',
       name: 'signUp',
@@ -30,9 +26,9 @@ const router = createRouter({
       component: () => import('../components/InputInfo.vue')
     },
     {
-      path: '/post',
-      name: 'post',
-      component: () => import('../components/Post.vue')
+      path: '/index',
+      name: 'index',
+      component: () => import('../components/Index.vue')
     },
     {
       path: '/choosePicture',
@@ -52,6 +48,17 @@ const router = createRouter({
       path: '/errorUserName',
       name: 'error',
       component: () => import('../components/ErrorUserName.vue')
+    },{
+      path: '/article:title',
+      name: 'article',
+      component: () => import('../components/Article.vue'),
+      
+    },
+    {
+      path: '/article/:title',
+      name: 'Article',
+      component: () => import('../components/Article.vue'),
+      props: true
     }
   ]
 })

@@ -1,133 +1,154 @@
 <template lang="">
-  
-  <el-card class="box-card">
-      <h1>Sign Up</h1>
-      <el-form
-        ref="ruleFormRef"
-        :model="ruleForm"
-        label-position="top"
-        label-width="150px"
-        :rules="rules"
-        :size="formSize"
-        status-icon
-      >
-    <el-form-item label="Name" prop="name">
-      <el-input v-model="ruleForm.username" />
-    </el-form-item>
-    <el-form-item label="Email" prop="email">
-      <el-input v-model="ruleForm.email" />
-    </el-form-item>
-    <el-form-item label="Password" prop="password">
-      <el-input v-model="ruleForm.password" />
-    </el-form-item>
-    <el-form-item label="Confirm Password" prop="confirmPassword">
-      <el-input v-model="ruleForm.confirmPassword" />
-    </el-form-item>
-    <el-form-item>
-      <el-button type="danger" @click="submitForm(ruleFormRef)">Create Account</el-button>
-    </el-form-item>
-  </el-form>
-    </el-card>
+  <el-card>
+    <h1>Sign Up</h1>
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      label-position="top"
+      label-width="150px"
+      :rules="rules"
+      :size="formSize"
+      status-icon
+    >
+      <el-form-item label="Name" prop="name">
+        <el-input v-model="ruleForm.name" />
+      </el-form-item>
+      <el-form-item label="Email" prop="email">
+        <el-input v-model="ruleForm.email" />
+      </el-form-item>
+      <el-form-item label="Password" prop="password">
+        <el-input v-model="ruleForm.password" />
+      </el-form-item>
+      <el-form-item label="Confirm Password" prop="confirmPassword">
+        <el-input v-model="ruleForm.confirmPassword" />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="danger" @click="signUp">Create Account</el-button>
+      </el-form-item>
+    </el-form>
+  </el-card>
 </template>
-
-<script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import router from '../router';
-import axios from 'axios';
-
-import type { FormInstance, FormRules } from 'element-plus'
-const formSize = ref('default')
-const ruleFormRef = ref<FormInstance>()
-
-const ruleForm = reactive({
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-})
-
-const rules = reactive<FormRules>({
-  username: [
-    { required: true, message: 'Please input your name', trigger: 'blur' },
-  ],
-  email: [
-    { required: true, message: 'Please input your email', trigger: 'blur' },
-    { type: 'email', message: 'Please input correct email', trigger: 'blur' },
-  ],
-  password: [
-    { required: true, message: 'Please input your password', trigger: 'blur' },
-  ],
-  confirmPassword: [
-    { required: true, message: 'Please confirm your password', trigger: 'blur' },
-    {
-      validator: (rule, value, callback) => {
-        if (value !== ruleForm.password) {
-          callback(new Error('Two passwords are inconsistent!'))
-        } else {
-          callback()
-        }
+<script>
+import { ElForm, ElFormItem, ElInput, ElButton } from "element-plus";
+import axios from "axios";
+import router from "@/router";
+export default {
+  components: {
+    ElForm,
+    ElFormItem,
+    ElInput,
+    ElButton,
+  },
+  data() {
+    return {
+      ruleForm: {
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
       },
-      trigger: 'blur',
-    },]
-})
-
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-      submitForm_();
-    } else {
-      console.log('error submit!', fields)
-    }
-  })
-}
-const submitForm_ = function(){
-  const url = 'http://127.0.0.1:3000/user/register'
-  const data = {
-    username: ruleForm.username,
-    email: ruleForm.email,
-    password: ruleForm.password
-  }
-  
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  }
-  axios.post(url, data, config)
-    .then(response => {
-      
-        console.log(response.data);
-        router.push('../login')
-
-    })
-    .catch(error => {
-      
-        console.log(error);
-      
-      
-    });
-}
+      error: { message: "" },
+      rules: {
+        name: [
+          {
+            required: true,
+            message: "Please input your name",
+            trigger: "blur",
+          },
+        ],
+        email: [
+          {
+            required: true,
+            message: "Please input your email",
+            trigger: "blur",
+          },
+          {
+            type: "email",
+            message: "Please input correct email",
+            trigger: "blur",
+          },
+        ],
+        password: [
+          {
+            required: true,
+            message: "Please input your password",
+            trigger: "blur",
+          },
+        ],
+        confirmPassword: [
+          {
+            required: true,
+            message: "Please confirm your password",
+            trigger: "blur",
+          },
+          { validator: this.checkConfirmPassword, trigger: "blur" },
+        ],
+      },
+    };
+  },
+  methods: {
+    async checkConfirmPassword(rule, value, callback) {
+      if (value !== this.ruleForm.password) {
+        callback(new Error("Two passwords are inconsistent!"));
+      } else {
+        callback();
+      }
+    },
+    async signUp() {
+      this.$refs.ruleFormRef
+        .validate()
+        .then(() => {
+          this.submitForm();
+          console.log("success");
+        })
+        .catch(() => {
+          this.$message.error("sign up fail");
+        });
+    },
+    async submitForm() {
+      const url = "http://127.0.0.1:3000/user/register";
+      const data = {
+        username: this.ruleForm.name,
+        email: this.ruleForm.email,
+        password: this.ruleForm.password,
+        
+      };
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      axios
+        .post(url, data, config)
+        .then((response) => {
+          console.log(response.data);
+          router.push("/login");
+        })
+        .catch((error) => {
+          console.log(error);
+          this.error.message = error.message
+        });
+    },
+    
+  },
+};
 </script>
-
-<style scoped>
-.text {
-  font-size: 14px;
+<style>
+.el-form {
+  font-size: 16px;
 }
-
-.item {
-  padding: 18px 0;
-}
-
-.box-card {
+.el-card {
   width: 480px;
+  height: 440px;
+  margin: -250px;
 }
-
-h1 {
-  font-size: 24px;
-  font-weight: 500;
-  margin-bottom: 20px;
-  text-align: center;
+.logo {
+  width: 100px; /* 設置元素寬度 */
+  height: 100px; /* 設置元素高度 */
+  border-radius: 50%; /* 設置邊框半徑為50% */
+  margin-left: 170px;
+}
+.link {
+  color: chartreuse;
 }
 </style>
